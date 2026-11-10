@@ -41,6 +41,16 @@ Au centre, un serveur synchronise tout en temps réel entre l'écran commun et l
 
 Semestre 2 : une application Android reprendra le côté téléphone. Le backend doit donc pouvoir servir aussi un client mobile natif.
 
+## Équipe
+
+| Rôle | Personne | Domaine |
+|---|---|---|
+| A | Basma | Backend, temps réel, architecture système |
+| B | Sara | Écran commun (Phaser) |
+| C | Alan | Téléphones et conception des énigmes |
+
+Détail des tâches et technos : [docs/REPARTITION.md](docs/REPARTITION.md)
+
 ## Structure du dépôt
 
 ```
