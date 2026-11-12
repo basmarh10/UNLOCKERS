@@ -57,6 +57,10 @@ Détail des tâches et technos : [docs/REPARTITION.md](docs/REPARTITION.md)
 
 ```
 UNLOCKERS/
-├── frontend/   # Écran commun + interface téléphone (JavaScript)
-└── backend/    # Serveur, temps réel, base de données (JavaScript / Node.js)
+├── shared/     # Contrat commun : événements, constantes, types JSDoc
+├── modules/    # Un dossier par module de jeu
+├── server/     # Serveur Node.js : Express, Socket.IO, règles, SQLite (Basma)
+├── screen/     # Écran commun Phaser 3 (Sara)
+├── phone/      # Page téléphone HTML/CSS/JS (Alan)
+└── docs/       # Plan, répartition, fiches des modules
 ```
