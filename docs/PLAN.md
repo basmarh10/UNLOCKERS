@@ -17,6 +17,12 @@ Au semestre 2, une **application mobile native** remplacera la page téléphone.
 
 ## Décisions validées
 
+> **Phaser et Socket.IO ne font pas le même travail : on utilise les deux.**
+> - **Phaser** est le moteur d'**affichage** de l'écran commun (dessin, animations, sons). Il n'a **aucune fonction réseau**.
+> - **Socket.IO** est la couche **réseau temps réel** : elle transporte les messages entre les téléphones, le serveur et l'écran.
+>
+> Une scène Phaser ne parle jamais directement à un téléphone : elle reçoit l'état du serveur via Socket.IO, puis l'affiche.
+
 | Sujet | Décision |
 |---|---|
 | Langage | **JavaScript + JSDoc** (ES modules). Types documentés en JSDoc, `// @ts-check` encouragé. Pas de TypeScript. |
