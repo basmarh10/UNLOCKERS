@@ -51,6 +51,8 @@ Semestre 2 : une application Android reprendra le côté téléphone. Le backend
 
 Détail des tâches et technos : [docs/REPARTITION.md](docs/REPARTITION.md)
 
+**Plan de référence (architecture, contrat d'événements, sprints, tests) : [docs/PLAN.md](docs/PLAN.md)**
+
 ## Structure du dépôt
 
 ```
