@@ -90,18 +90,18 @@ En lobby, un joueur déconnecté libère simplement sa place.
    - C, Alan : `phone/`.
 
    Exception : Basma code les scènes **Lobby** et **Fin** dans `screen/src/scenes/`, dans des fichiers séparés, à partir de la coquille Phaser livrée par Sara. Chaque module de `modules/` appartient à la personne qui le crée. `shared/` ne change que par PR relue par les 3.
-4. **Une branche par tâche et une PR relue** par quelqu'un d'autre. Pas de push direct sur `main`.
+4. **Une branche par rôle** (`backend`, `frontend`, `mobile`) **et une PR relue** par quelqu'un d'autre vers `main`. Pas de push direct sur `main`. Détail dans [Conventions](#conventions).
 5. **Intégration chaque fin de sprint** : le dimanche, `main` doit tourner de bout en bout.
 
 ## Répartition
 
 Détail des tâches et technos dans [REPARTITION.md](REPARTITION.md).
 
-| Rôle | Personne | Domaine |
-|---|---|---|
-| A | **Basma** | Serveur, temps réel, architecture, règles du jeu, BDD, CI, déploiement, scènes Lobby et Fin |
-| B | **Sara** | Écran commun Phaser : coquille, scène Jeu, animations, sons, direction artistique |
-| C | **Alan** | Page téléphone, contrôles, conception et équilibrage des modules |
+| Rôle | Personne | Domaine | Branche |
+|---|---|---|---|
+| A | **Basma** | Serveur, temps réel, architecture, règles du jeu, BDD, CI, déploiement, scènes Lobby et Fin | `backend` |
+| B | **Sara** | Écran commun Phaser : coquille, scène Jeu, animations, sons, direction artistique | `frontend` |
+| C | **Alan** | Page téléphone, contrôles, conception et équilibrage des modules | `mobile` |
 
 | Module | Responsable | Sprint |
 |---|---|---|
@@ -284,9 +284,28 @@ Variables d'environnement (`.env`, modèle dans `.env.example`) : `PORT`, `DB_FI
 
 ## Conventions
 
-- **Branches** : `feat/<sujet>`, `fix/<sujet>`, `test/<sujet>`, `docs/<sujet>`, `chore/<sujet>` (ex. `feat/lobby-scene`).
+### Branches
+
+| Branche | Qui | Rôle |
+|---|---|---|
+| `main` | tout le monde, via PR uniquement | Version stable qui tourne de bout en bout |
+| `backend` | Basma | Serveur, temps réel, BDD, CI, scènes Lobby et Fin |
+| `frontend` | Sara | Écran commun Phaser |
+| `mobile` | Alan | Page téléphone et contrôles |
+
+Les modules sont codés sur la branche de leur auteur. Le contrat `shared/` peut être modifié depuis n'importe quelle branche, mais la PR doit être relue par les 3.
+
+**Cycle de travail** :
+1. **Début de journée** : récupérer `main` dans sa branche (`git switch backend`, puis `git fetch`, puis `git merge origin/main`), pour avoir le travail des autres et le contrat à jour.
+2. **Travailler** sur sa branche de rôle. Pour une tâche plus longue, on peut créer une sous-branche depuis sa branche de rôle (ex. `backend-rooms`, `mobile-join-page`), puis la fusionner dans sa branche de rôle. Pas de `/` après le nom du rôle : Git refuse `backend/rooms` quand la branche `backend` existe.
+3. **Tâche terminée** : pousser sa branche et ouvrir une **PR de sa branche vers `main`**. CI verte + 1 relecture, puis fusion.
+4. **Après la fusion** : les deux autres récupèrent `main` dans leur branche.
+5. Les branches de rôle ne sont **jamais supprimées** : elles vivent jusqu'au rendu.
+
+### Commits et PR
+
 - **Commits** : courts, en français, à l'impératif (« Ajoute la scène Lobby », « Corrige la reconnexion »).
-- **Pull Requests** : une PR par tâche Notion, avec le titre de la tâche, ce qui a été fait et comment tester. CI verte + 1 relecture avant fusion.
+- **Pull Requests** : une PR par tâche Notion, avec le titre de la tâche, ce qui a été fait et comment tester. CI verte + 1 relecture avant fusion. Une PR qui modifie `shared/` est relue par les 3.
 - **Code** : ES modules, `const` par défaut, pas de nom d'événement en dur, JSDoc sur toutes les fonctions exportées.
 
 ## Tests (au fil de l'eau)

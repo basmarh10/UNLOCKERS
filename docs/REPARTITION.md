@@ -30,5 +30,5 @@ Chacun crée aussi **au moins un module de bout en bout** (règle côté serveur
 ## Règles Git
 
 - Pas de push direct sur `main`.
-- Une branche par tâche (`feature/lobby`, `feature/module-fils`…).
+- Une branche par rôle : `backend` (Basma), `frontend` (Sara), `mobile` (Alan). Détail du cycle de travail dans [PLAN.md](PLAN.md).
 - Une Pull Request relue par un autre membre avant chaque fusion.
