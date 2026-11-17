@@ -1,0 +1,17 @@
+{
+  "name": "@unlockers/server",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Serveur UNLOCKERS : Express + Socket.IO, règles du jeu, SQLite (Basma)",
+  "type": "module",
+  "main": "./src/index.js",
+  "scripts": {
+    "dev": "node --watch --env-file-if-exists=../.env src/index.js",
+    "mock": "node --watch --env-file-if-exists=../.env mock/index.js",
+    "start": "node --env-file-if-exists=../.env src/index.js"
+  },
+  "dependencies": {
+    "@unlockers/modules": "*",
+    "@unlockers/shared": "*"
+  }
+}

@@ -1,0 +1,6 @@
+node_modules
+dist
+coverage
+package-lock.json
+# La doc est rédigée à la main : on ne la reformate pas automatiquement.
+*.md

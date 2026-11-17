@@ -1,0 +1,10 @@
+{
+  "name": "@unlockers/phone",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Page téléphone HTML/CSS/JS + Vite (Alan)",
+  "type": "module",
+  "dependencies": {
+    "@unlockers/shared": "*"
+  }
+}

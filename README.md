@@ -41,6 +41,21 @@ Au centre, un serveur synchronise tout en temps réel entre l'écran commun et l
 
 Semestre 2 : une application Android reprendra le côté téléphone. Le backend doit donc pouvoir servir aussi un client mobile natif.
 
+## Démarrer
+
+Prérequis : **Node.js 22** ou plus (`.nvmrc`).
+
+```bash
+npm install          # installe tout le monorepo
+cp .env.example .env # configuration locale
+npm run dev          # serveur + écran + téléphone
+npm run dev:mock     # faux serveur à la place du vrai
+npm test             # tests Vitest
+npm run lint         # ESLint + Prettier (npm run format pour corriger)
+```
+
+Le contrat commun (événements, constantes, types) est dans [`shared/`](shared/) : on importe `@unlockers/shared`, jamais de nom d'événement en dur.
+
 ## Équipe
 
 | Rôle | Personne | Domaine |
