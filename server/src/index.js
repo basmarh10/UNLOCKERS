@@ -1,13 +1,33 @@
 // @ts-check
 /**
- * Point d'entrée du serveur.
- *
- * S0 : simple coquille pour que `npm run dev` et `npm start` fonctionnent.
- * S1 : Express + Socket.IO + /api/health (tâche Notion « Serveur Express + Socket.IO + /api/health »).
+ * Point d'entrée du serveur : lit la configuration, ouvre la base SQLite, démarre
+ * Express + Socket.IO sur un seul port (API `/api/*` et `/socket.io`).
  */
-import { DEFAULT_RULES } from '@unlockers/shared';
+import { loadConfig } from './config.js';
+import { createServer } from './app.js';
+import { openDatabase } from './db/client.js';
+import { createSqliteStore } from './db/sqliteStore.js';
 
-const port = Number(process.env.PORT ?? 3000);
+const config = loadConfig();
+const database = openDatabase(config.dbFile);
+const server = createServer({
+  publicUrl: config.publicUrl,
+  store: createSqliteStore(database.db, config.rules),
+});
 
-console.log(`[server] Coquille S0 prête (port prévu : ${port}).`);
-console.log(`[server] Règles par défaut : ${JSON.stringify(DEFAULT_RULES)}`);
+server.httpServer.listen(config.port, () => {
+  console.log(`[server] Prêt sur http://localhost:${config.port}`);
+  console.log(
+    `[server] API : /api/health · Liens pour rejoindre : ${config.publicUrl}/play?code=…`,
+  );
+  console.log(`[server] Base SQLite : ${config.dbFile}`);
+});
+
+/** Arrêt propre (Ctrl+C, redémarrage de node --watch, hébergeur). */
+async function shutdown() {
+  await server.close();
+  database.close();
+  process.exit(0);
+}
+process.on('SIGINT', shutdown);
+process.on('SIGTERM', shutdown);

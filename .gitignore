@@ -9,3 +9,9 @@ build/
 .vscode/
 .idea/
 coverage/
+
+# Base SQLite locale
+data/
+*.db
+*.db-shm
+*.db-wal
