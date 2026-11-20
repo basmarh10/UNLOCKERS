@@ -1,0 +1,11 @@
+{
+  "name": "@unlockers/modules",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Modules de jeu : un dossier par module (config.json, server.js, screen.js, phone.js, README.md)",
+  "type": "module",
+  "main": "./index.js",
+  "dependencies": {
+    "@unlockers/shared": "*"
+  }
+}

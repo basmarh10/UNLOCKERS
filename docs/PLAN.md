@@ -253,7 +253,12 @@ export default {
 | `game:paused` | tous | `{ reason: 'player_disconnected', slot, resumeDeadline }` | Pause sur déconnexion |
 | `game:resumed` | tous | `{ redistributed: boolean }` | Reprise (joueur revenu ou infos redistribuées) |
 | `game:over` | tous | `{ result: 'won' \| 'lost', reason, time, errors }` | Fin de partie |
-| `error` | le client fautif | `{ code, message }` | `GAME_NOT_FOUND`, `GAME_FULL`, `GAME_STARTED`, `NOT_FOCUSED`, `INVALID_ACTION`… |
+| `error` | le client fautif | `{ code, message }` | `GAME_NOT_FOUND`, `GAME_FULL`, `GAME_STARTED`, `NOT_ENOUGH_PLAYERS`, `NOT_FOCUSED`, `FOCUS_COOLDOWN`, `MODULE_LOCKED`, `INVALID_ACTION`, `INVALID_PAYLOAD` |
+
+**Valeurs figées dans `shared/constants.js`** (contrat v1) :
+- statuts de partie : `lobby`, `playing`, `won`, `lost` ; statuts de module : `locked`, `active`, `solved` ;
+- raisons de fin (`game:over.reason`) : `final_solved`, `time_up`, `too_many_errors`, `not_enough_players` ;
+- alphabet des codes de salle : `ABCDEFGHJKLMNPQRSTUVWXYZ23456789` ; pseudo : 1 à 16 caractères.
 
 **Règle de reconnexion** : à chaque reconnexion, le serveur renvoie immédiatement l'état complet (`game:state` ou `player:view`). Un client ne suppose jamais qu'il a reçu tous les événements.
 

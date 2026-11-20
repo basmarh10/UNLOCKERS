@@ -1,0 +1,39 @@
+{
+  "name": "unlockers",
+  "version": "0.1.0",
+  "private": true,
+  "description": "UNLOCKERS : escape game coopératif à information asymétrique (ESME)",
+  "type": "module",
+  "workspaces": [
+    "shared",
+    "modules",
+    "server",
+    "screen",
+    "phone"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "concurrently -n server,screen,phone -c blue,magenta,green \"npm run dev -w @unlockers/server\" \"npm run dev -w @unlockers/screen --if-present\" \"npm run dev -w @unlockers/phone --if-present\"",
+    "dev:mock": "concurrently -n mock,screen,phone -c yellow,magenta,green \"npm run mock -w @unlockers/server\" \"npm run dev -w @unlockers/screen --if-present\" \"npm run dev -w @unlockers/phone --if-present\"",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint . && prettier --check .",
+    "format": "prettier --write . && eslint . --fix",
+    "build": "npm run build --workspaces --if-present",
+    "start": "npm start -w @unlockers/server"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "concurrently": "^10.0.7",
+    "eslint": "^9.39.5",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^17.14.0",
+    "prettier": "^3.10.1",
+    "vitest": "^5.1.0"
+  },
+  "allowScripts": {
+    "fsevents@2.3.3": true
+  }
+}

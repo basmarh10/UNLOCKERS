@@ -1,0 +1,14 @@
+{
+  "name": "@unlockers/shared",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Contrat commun v1 : événements Socket.IO, constantes et types JSDoc (PR relue par les 3)",
+  "type": "module",
+  "main": "./index.js",
+  "exports": {
+    ".": "./index.js",
+    "./events.js": "./events.js",
+    "./constants.js": "./constants.js",
+    "./types.js": "./types.js"
+  }
+}

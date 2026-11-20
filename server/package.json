@@ -1,0 +1,31 @@
+{
+  "name": "@unlockers/server",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Serveur UNLOCKERS : Express + Socket.IO, règles du jeu, SQLite (Basma)",
+  "type": "module",
+  "main": "./src/index.js",
+  "scripts": {
+    "dev": "node --watch --env-file-if-exists=../.env src/index.js",
+    "mock": "node --watch --env-file-if-exists=../.env mock/index.js",
+    "start": "node --env-file-if-exists=../.env src/index.js",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio"
+  },
+  "dependencies": {
+    "@unlockers/modules": "*",
+    "@unlockers/shared": "*",
+    "better-sqlite3": "^13.2.0",
+    "drizzle-orm": "^0.45.4",
+    "express": "^5.3.0",
+    "qrcode": "^1.5.4",
+    "socket.io": "^4.8.4",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.31.11",
+    "socket.io-client": "^4.8.4",
+    "supertest": "^7.3.2"
+  }
+}
