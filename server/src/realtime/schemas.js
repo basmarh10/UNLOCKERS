@@ -23,3 +23,12 @@ export const playerJoinSchema = z.object({
   nickname: z.string().trim().min(NICKNAME_MIN_LENGTH).max(NICKNAME_MAX_LENGTH),
   playerId: z.string().uuid().optional(),
 });
+
+/** Identifiant de module : texte court (l'existence est vérifiée par la partie). */
+const moduleId = z.string().min(1).max(64);
+
+/** `module:focus` */
+export const moduleFocusSchema = z.object({ moduleId });
+
+/** `module:action` : le contenu de `action` est validé par le module lui-même. */
+export const moduleActionSchema = z.object({ moduleId, action: z.unknown() });

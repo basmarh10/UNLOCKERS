@@ -44,7 +44,7 @@ Au semestre 2, une **application mobile native** remplacera la page téléphone.
 | Durée | **5 minutes**. |
 | Erreurs | **3 erreurs = défaite**. Pas de pénalité de temps. |
 | Modules | **4 modules actifs dès le début + 1 module final**, verrouillé jusqu'à ce que les 4 autres soient résolus. |
-| Victoire | Le module final est résolu avant la fin du chrono. |
+| Victoire | Le module final est résolu avant la fin du chrono. (Tant qu'aucun module final n'est codé, résoudre tous les modules donne la victoire.) |
 | Défaite | Chrono à 0, ou 3e erreur, ou moins de 2 joueurs restants. |
 | Génération | Chaque module est **généré aléatoirement** au lancement (graine aléatoire par partie), donc chaque partie est différente. |
 
@@ -70,6 +70,8 @@ Plusieurs modules sont actifs en même temps, mais **toute l'équipe travaille s
 - **Tous les téléphones affichent la vue de ce module.**
 - **N'importe quel joueur** peut changer le focus depuis son téléphone (liste des modules actifs) : tout le monde bascule. Un délai minimum de 2 s entre deux changements évite les bascules en boucle.
 - Une action envoyée sur un module qui n'est pas en focus est refusée par le serveur.
+- Quand le module en focus est résolu, le focus passe **automatiquement** au premier module encore actif (le module final dès qu'il est déverrouillé). Ce changement automatique ne déclenche pas le délai de 2 s.
+- Un module résolu ou verrouillé ne peut pas être mis en focus (`INVALID_ACTION` / `MODULE_LOCKED`).
 
 ### Déconnexion d'un joueur
 
@@ -229,7 +231,7 @@ export default {
 | Événement | Données | Rôle |
 |---|---|---|
 | `screen:join` | `{ code }` | L'écran s'abonne à la partie |
-| `game:start` | `{}` | Lance la partie (≥ 2 joueurs) |
+| `game:start` | `{}` | Lance la partie (≥ 2 joueurs). Accepté uniquement depuis un socket qui a fait `screen:join`. |
 | `game:restart` | `{}` | Rejouer avec les mêmes joueurs |
 
 **Téléphone → serveur**

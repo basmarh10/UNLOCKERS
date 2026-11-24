@@ -12,6 +12,7 @@ const config = loadConfig();
 const database = openDatabase(config.dbFile);
 const server = createServer({
   publicUrl: config.publicUrl,
+  rules: config.rules,
   store: createSqliteStore(database.db, config.rules),
 });
 
