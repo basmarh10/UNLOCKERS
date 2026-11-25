@@ -196,6 +196,71 @@ describe('mock-server', () => {
     expect(mock.rooms.get('TEST')?.status).toBe('lobby');
   });
 
+  describe('téléphones réels : mêmes règles que le vrai serveur', () => {
+    let ana;
+
+    /** Écran + 2 vrais téléphones, partie lancée en temps réel (délai de focus = 2 s). */
+    async function startManualGame() {
+      mock = await startMock({ scenario: 'lobby', bots: 0, speed: 1 });
+      const screen = await mock.client();
+      screen.emit(EVENTS.SCREEN_JOIN, { code: 'TEST' });
+      await waitFor(screen, EVENTS.LOBBY_UPDATE);
+      ana = await mock.client();
+      const bob = await mock.client();
+      for (const [socket, nickname] of [
+        [ana, 'Ana'],
+        [bob, 'Bob'],
+      ]) {
+        const joined = waitFor(socket, EVENTS.PLAYER_JOINED);
+        socket.emit(EVENTS.PLAYER_JOIN, { code: 'TEST', nickname });
+        await joined;
+      }
+      const view = waitFor(ana, EVENTS.PLAYER_VIEW);
+      screen.emit(EVENTS.GAME_START, {});
+      return view;
+    }
+
+    /** Envoie un événement et renvoie le code d'erreur reçu. */
+    async function errorCode(event, payload) {
+      const error = waitFor(ana, EVENTS.ERROR);
+      ana.emit(event, payload);
+      return (await error).code;
+    }
+
+    it('module:focus : INVALID_PAYLOAD, INVALID_ACTION, MODULE_LOCKED puis FOCUS_COOLDOWN', async () => {
+      await startManualGame();
+      expect(await errorCode(EVENTS.MODULE_FOCUS, {})).toBe('INVALID_PAYLOAD');
+      expect(await errorCode(EVENTS.MODULE_FOCUS, { moduleId: 'nope' })).toBe('INVALID_ACTION');
+      expect(await errorCode(EVENTS.MODULE_FOCUS, { moduleId: 'final' })).toBe('MODULE_LOCKED');
+
+      const moved = waitFor(ana, EVENTS.PLAYER_VIEW);
+      ana.emit(EVENTS.MODULE_FOCUS, { moduleId: 'keypad' });
+      expect((await moved).focusedModuleId).toBe('keypad');
+      expect(await errorCode(EVENTS.MODULE_FOCUS, { moduleId: 'symbols' })).toBe('FOCUS_COOLDOWN');
+    });
+
+    it('module résolu : le focus passe au suivant et le module résolu est refusé', async () => {
+      const first = await startManualGame();
+      expect(first.focusedModuleId).toBe('wires');
+
+      const next = waitFor(ana, EVENTS.PLAYER_VIEW);
+      ana.emit(EVENTS.MODULE_ACTION, { moduleId: 'wires', action: 'solve' });
+      expect((await next).focusedModuleId).toBe('keypad');
+      expect(await errorCode(EVENTS.MODULE_FOCUS, { moduleId: 'wires' })).toBe('INVALID_ACTION');
+    });
+
+    it('module:action : INVALID_PAYLOAD, action inconnue → INVALID_ACTION, final → MODULE_LOCKED', async () => {
+      await startManualGame();
+      expect(await errorCode(EVENTS.MODULE_ACTION, { action: 'ok' })).toBe('INVALID_PAYLOAD');
+      expect(await errorCode(EVENTS.MODULE_ACTION, { moduleId: 'wires', action: 'boom' })).toBe(
+        'INVALID_ACTION',
+      );
+      expect(await errorCode(EVENTS.MODULE_ACTION, { moduleId: 'final', action: 'ok' })).toBe(
+        'MODULE_LOCKED',
+      );
+    });
+  });
+
   it('game:start avec moins de 2 joueurs : error NOT_ENOUGH_PLAYERS', async () => {
     mock = await startMock({ scenario: 'victory', bots: 0 });
     const screen = await mock.client();

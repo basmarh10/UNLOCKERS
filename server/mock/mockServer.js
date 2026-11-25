@@ -26,7 +26,12 @@ import {
 import { createApiRouter } from '../src/api/router.js';
 import { nullStore } from '../src/db/store.js';
 import { errorPayload } from '../src/errors.js';
-import { playerJoinSchema, screenJoinSchema } from '../src/realtime/schemas.js';
+import {
+  moduleActionSchema,
+  moduleFocusSchema,
+  playerJoinSchema,
+  screenJoinSchema,
+} from '../src/realtime/schemas.js';
 import { RoomManager } from '../src/rooms/RoomManager.js';
 import { FakeGame } from './fakeGame.js';
 import { DEFAULT_SCENARIO, SCENARIOS } from './scenarios.js';
@@ -288,30 +293,39 @@ export function createMockServer({
       broadcastLobby(room);
     });
 
+    // Focus et actions des vrais téléphones : mêmes validations et mêmes codes d'erreur
+    // que le vrai serveur (`src/realtime/handlers.js` et `src/game/Game.js`).
     socket.on(EVENTS.MODULE_FOCUS, (payload) => {
+      const parsed = moduleFocusSchema.safeParse(payload);
+      if (!parsed.success) return fail(ERROR_CODES.INVALID_PAYLOAD);
       const room = currentRoom();
       const game = room && sessionOf(room).game;
       if (!room || !game || game.over) return fail(ERROR_CODES.INVALID_ACTION);
-      const module = game.modules.find((m) => m.id === payload?.moduleId);
-      if (!module) return fail(ERROR_CODES.INVALID_PAYLOAD);
-      if (module.status === MODULE_STATUS.LOCKED) return fail(ERROR_CODES.MODULE_LOCKED);
-      game.focusedModuleId = module.id;
-      broadcastState(room);
+      const cooldownMs = DEFAULT_RULES.focusCooldownMs / speed;
+      const outcome = game.focus(parsed.data.moduleId, Date.now(), cooldownMs);
+      if (!outcome.ok) return fail(outcome.code);
+      if (outcome.changed) broadcastState(room);
     });
 
     socket.on(EVENTS.MODULE_ACTION, (payload) => {
+      const parsed = moduleActionSchema.safeParse(payload);
+      if (!parsed.success) return fail(ERROR_CODES.INVALID_PAYLOAD);
       const room = currentRoom();
       const game = room && sessionOf(room).game;
       const player = room && data.playerId ? room.getPlayer(data.playerId) : undefined;
       if (!room || !game || game.over || !player) return fail(ERROR_CODES.INVALID_ACTION);
-      if (payload?.moduleId !== game.focusedModuleId) return fail(ERROR_CODES.NOT_FOCUSED);
-      const action = payload?.action;
-      const result = action === 'solve' ? 'solved' : action === 'error' ? 'error' : 'ok';
-      io.to(room.code).emit(EVENTS.MODULE_RESULT, {
-        moduleId: game.focusedModuleId,
-        slot: player.slot,
-        result,
-      });
+      const { moduleId, action } = parsed.data;
+      const module = game.modules.find((m) => m.id === moduleId);
+      if (!module) return fail(ERROR_CODES.INVALID_ACTION);
+      if (module.status === MODULE_STATUS.LOCKED) return fail(ERROR_CODES.MODULE_LOCKED);
+      if (moduleId !== game.focusedModuleId) return fail(ERROR_CODES.NOT_FOCUSED);
+      if (module.status !== MODULE_STATUS.ACTIVE) return fail(ERROR_CODES.INVALID_ACTION);
+      /** @type {Record<string, 'ok' | 'error' | 'solved'>} */
+      const results = { ok: 'ok', error: 'error', solve: 'solved' };
+      if (typeof action !== 'string' || !Object.hasOwn(results, action))
+        return fail(ERROR_CODES.INVALID_ACTION);
+      const result = results[action];
+      io.to(room.code).emit(EVENTS.MODULE_RESULT, { moduleId, slot: player.slot, result });
       game.applyResult(result);
       broadcastState(room);
       endIfOver(room);

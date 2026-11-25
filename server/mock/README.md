@@ -45,11 +45,23 @@ Les étapes sont décrites dans [`scenarios.js`](scenarios.js) : on peut en ajou
 
 Pendant une partie, le téléphone peut aussi envoyer :
 
-- `module:focus { moduleId }` : bascule le focus pour tout le monde (`MODULE_LOCKED` sur le module final verrouillé) ;
-- `module:action { moduleId, action }` avec `action` = `'ok'`, `'error'` ou `'solve'` (`NOT_FOCUSED` si ce n'est pas le module en focus).
+- `module:focus { moduleId }` : bascule le focus pour tout le monde ;
+- `module:action { moduleId, action }` avec `action` = `'ok'`, `'error'` ou `'solve'`.
+
+Ces deux événements suivent les mêmes règles et renvoient les mêmes codes d'erreur que le vrai serveur :
+
+| Cas | Code |
+|---|---|
+| Payload mal formé (`moduleId` manquant…) | `INVALID_PAYLOAD` |
+| Module inconnu, module déjà résolu, action autre que `ok` / `error` / `solve` | `INVALID_ACTION` |
+| Module final encore verrouillé | `MODULE_LOCKED` |
+| Nouveau changement de focus moins de 2 s après le précédent | `FOCUS_COOLDOWN` |
+| Action sur un module qui n'est pas en focus | `NOT_FOCUSED` |
+
+Quand un module est résolu, le focus passe tout seul au premier module encore actif.
 
 Chaque téléphone reçoit **sa propre** `player:view` : `view.slot` et `view.hint` changent selon la place.
 
 ## Ce que le mock ne fait pas
 
-Pas de vraie logique de module, pas de délai de 2 s sur le focus, pas de pause si un vrai téléphone se déconnecte. Ces règles sont dans le vrai serveur (S2-S4).
+Pas de vraie logique de module, pas de pause si un vrai téléphone se déconnecte. Ces règles sont dans le vrai serveur (S2-S4). Les étapes scriptées des scénarios changent le focus sans délai de 2 s.
