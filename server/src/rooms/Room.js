@@ -41,6 +41,8 @@ export class Room {
     /** @type {Map<string, Player>} playerId → joueur */
     this.players = new Map();
     this.createdAt = Date.now();
+    /** Partie en cours (créée au lancement). @type {import('../game/Game.js').Game | null} */
+    this.game = null;
   }
 
   /** Nombre de joueurs qui occupent une place (connectés ou non). */

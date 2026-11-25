@@ -6,6 +6,7 @@
 import {
   DEFAULT_RULES,
   END_REASON,
+  ERROR_CODES,
   GAME_RESULT,
   GAME_STATUS,
   MODULE_STATUS,
@@ -37,10 +38,34 @@ export class FakeGame {
     }));
     /** @type {import('@unlockers/shared/types.js').GameOverPayload | null} */
     this.over = null;
+    /** Moment du dernier changement de focus demandé par un vrai téléphone. */
+    this.lastFocusAt = -Infinity;
   }
 
   get focused() {
     return this.modules.find((m) => m.id === this.focusedModuleId);
+  }
+
+  /**
+   * Focus demandé par un vrai téléphone : mêmes règles et mêmes codes d'erreur que le
+   * vrai serveur (`Game.focus`).
+   * @param {string} moduleId
+   * @param {number} now horloge en ms
+   * @param {number} cooldownMs délai entre deux changements
+   * @returns {{ ok: true, changed: boolean } | { ok: false, code: import('@unlockers/shared/types.js').ErrorCode }}
+   */
+  focus(moduleId, now, cooldownMs) {
+    const module = this.modules.find((m) => m.id === moduleId);
+    if (!module) return { ok: false, code: ERROR_CODES.INVALID_ACTION };
+    if (module.status === MODULE_STATUS.LOCKED)
+      return { ok: false, code: ERROR_CODES.MODULE_LOCKED };
+    if (module.status === MODULE_STATUS.SOLVED)
+      return { ok: false, code: ERROR_CODES.INVALID_ACTION };
+    if (moduleId === this.focusedModuleId) return { ok: true, changed: false };
+    if (now - this.lastFocusAt < cooldownMs) return { ok: false, code: ERROR_CODES.FOCUS_COOLDOWN };
+    this.lastFocusAt = now;
+    this.focusedModuleId = moduleId;
+    return { ok: true, changed: true };
   }
 
   /**
@@ -60,6 +85,10 @@ export class FakeGame {
       if (regularSolved && final?.status === MODULE_STATUS.LOCKED)
         final.status = MODULE_STATUS.ACTIVE;
       if (module.isFinal) this.finish(GAME_RESULT.WON, END_REASON.FINAL_SOLVED);
+      // Comme le vrai serveur : le focus passe au premier module encore actif.
+      else
+        this.focusedModuleId =
+          this.modules.find((m) => m.status === MODULE_STATUS.ACTIVE)?.id ?? this.focusedModuleId;
     }
     if (this.errors >= this.maxErrors) this.finish(GAME_RESULT.LOST, END_REASON.TOO_MANY_ERRORS);
   }
