@@ -178,10 +178,11 @@ export function registerHandlers(io, { rooms, store, registry, rules, tickMs }) 
       const parsed = moduleFocusSchema.safeParse(payload);
       if (!parsed.success) return fail(ERROR_CODES.INVALID_PAYLOAD);
       const current = currentPlayer();
-      if (!current?.room.game) return fail(ERROR_CODES.INVALID_ACTION);
+      const game = current?.room.game;
+      if (!current || !game) return fail(ERROR_CODES.INVALID_ACTION);
 
       const { room, player } = current;
-      const outcome = room.game.focus(player.slot, parsed.data.moduleId);
+      const outcome = game.focus(player.slot, parsed.data.moduleId);
       if (!outcome.ok) return fail(outcome.code);
       if (outcome.changed) broadcastGame(room);
     });
@@ -190,11 +191,12 @@ export function registerHandlers(io, { rooms, store, registry, rules, tickMs }) 
       const parsed = moduleActionSchema.safeParse(payload);
       if (!parsed.success) return fail(ERROR_CODES.INVALID_PAYLOAD);
       const current = currentPlayer();
-      if (!current?.room.game) return fail(ERROR_CODES.INVALID_ACTION);
+      const game = current?.room.game;
+      if (!current || !game) return fail(ERROR_CODES.INVALID_ACTION);
 
       const { room, player } = current;
       const { moduleId, action } = parsed.data;
-      const outcome = room.game.act(player.slot, moduleId, action);
+      const outcome = game.act(player.slot, moduleId, action);
       if (!outcome.ok) return fail(outcome.code);
 
       io.to(room.code).emit(EVENTS.MODULE_RESULT, {
@@ -202,7 +204,7 @@ export function registerHandlers(io, { rooms, store, registry, rules, tickMs }) 
         slot: player.slot,
         result: outcome.result,
       });
-      if (room.game.over) endGame(room);
+      if (game.over) endGame(room);
       else broadcastGame(room);
     });
 
